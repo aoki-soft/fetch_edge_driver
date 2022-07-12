@@ -2,8 +2,8 @@ use std::{process::Command};
 use anyhow::{Result, Context};
 use bytes::Bytes;
 use std::io::prelude::*;
-use std::fs::File;
 use std::path::Path;
+use std::io::Cursor;
 
 /// # Get microsoft edge version
 pub fn get_version() -> Result<String> {
@@ -22,10 +22,16 @@ pub fn download_driver(edge_version: &str) -> Result<Bytes> {
         .context("Failed body to Bytes")
 }
 
-pub fn get_driver(file_path: &'static Path) -> Result<()> {
+pub fn get_driver(dist_path: &'static Path) -> Result<()> {
     let edge_version = get_version()?;
     let data = download_driver(&edge_version)?;
-    let mut file = File::create(file_path)?;
-    file.write_all(&data)?;
+    let cur = Cursor::new(&data);
+    unzip_driver(cur, dist_path)?;
+    Ok(())
+}
+
+pub fn unzip_driver(data: impl Read + Seek, dist_path: &'static Path) -> Result<()> {
+    let mut zip_data = zip::ZipArchive::new(data)?;
+    zip_data.extract(dist_path)?;
     Ok(())
 }
