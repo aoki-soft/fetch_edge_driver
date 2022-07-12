@@ -1,8 +1,7 @@
 use anyhow::Result;
-use fetch_edge_driver::get_driver;
-use std::path::Path;
+use fetch_edge_driver::save_driver_with_exe;
 
 fn main() -> Result<()>{
-    get_driver(Path::new("msedgedriver.exe"))?;
+    save_driver_with_exe()?;
     Ok(())
 }

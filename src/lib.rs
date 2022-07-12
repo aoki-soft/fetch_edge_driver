@@ -22,7 +22,7 @@ pub fn download_driver(edge_version: &str) -> Result<Bytes> {
         .context("Failed body to Bytes")
 }
 
-pub fn get_driver(driver_path: &'static Path) -> Result<()> {
+pub fn get_driver<P: AsRef<Path>>(driver_path: P) -> Result<()> {
     let edge_version = get_version()?;
     let data = download_driver(&edge_version)?;
     let cur = Cursor::new(&data);
@@ -30,7 +30,7 @@ pub fn get_driver(driver_path: &'static Path) -> Result<()> {
     Ok(())
 }
 
-pub fn unzip_driver(data: impl Read + Seek, driver_path: &'static Path) -> Result<()> {
+pub fn unzip_driver<P: AsRef<Path>>(data: impl Read + Seek, driver_path: P) -> Result<()> {
     let mut zip_data = zip::ZipArchive::new(data)?;
     let mut zip_driver = zip_data.by_name("msedgedriver.exe")?;
     let mut driver_data = Vec::new();
@@ -39,5 +39,14 @@ pub fn unzip_driver(data: impl Read + Seek, driver_path: &'static Path) -> Resul
 
     let mut file = std::fs::File::create(driver_path)?;
     file.write_all(&driver_data)?;
+    Ok(())
+}
+
+pub fn save_driver_with_exe() -> Result<()> {
+    let mut driver_path = std::env::current_exe()?;
+    driver_path.pop();
+    driver_path.push("msedgedriver.exe");
+
+    get_driver(&driver_path)?;
     Ok(())
 }
