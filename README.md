@@ -11,3 +11,9 @@ https://msedgedriver.azureedge.net/102.0.1249.0/edgedriver_win32.zip
 
 https://msedgedriver.azureedge.net/102.0.1249.0/edgedriver_win64.zip
 https://msedgedriver.azureedge.net/102.0.1245.44/edgedriver_win64.zip
+
+msedgeバージョン読み込み
+
+```
+cargo run --example get_version
+```
