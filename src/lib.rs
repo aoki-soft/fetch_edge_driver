@@ -50,3 +50,61 @@ pub fn save_driver_with_exe() -> Result<PathBuf> {
     get_driver(&driver_path)?;
     Ok(driver_path)
 }
+
+pub fn get_driver_version<'a>(driver_path: &'a Path) -> Result<String> {
+    let cmd = format!(r#"(Get-ItemProperty {}).VersionInfo.ProductVersion"#, driver_path.to_str().context("Failed convert edge_driver path to str")?);
+    let output = Command::new("powershell")
+        .args(["/C", &cmd])
+        .output().context("Failed get edege driver version cmd")?;
+    let edge_version = output.stdout;
+    Ok(std::str::from_utf8(&edge_version).context("Failed convert edge_driver version")?.trim().to_string())
+}
+
+#[derive(Debug)]
+pub struct EdgeVersion {
+    pub edge_version: String,
+    pub driver_version: String   
+}
+
+#[derive(Debug)]
+pub enum IsSame {
+    Same(String),
+    Not(EdgeVersion)
+}
+
+pub fn is_ok_driver_version<'a>(driver_path: &'a Path) -> Result<IsSame> {
+    let edge_version = get_version()?;
+    let driver_version = get_driver_version(driver_path)?;
+    if edge_version == driver_version {
+        Ok(IsSame::Same(edge_version))
+    } else {
+        Ok(IsSame::Not(EdgeVersion {
+            edge_version,
+            driver_version
+        }))
+    } 
+}
+
+#[derive(Debug)]
+pub enum FetchNew {
+    Yes,
+    No
+}
+
+pub fn check_get_driver<'a>(driver_path: &'a Path) -> Result<FetchNew> {
+    let check_result = is_ok_driver_version(driver_path)?;
+    if let IsSame::Not(_) = check_result {
+        get_driver(driver_path)?;
+        Ok(FetchNew::Yes)
+    } else {
+        Ok(FetchNew::No)
+    }
+}
+
+pub fn check_get_driver_with_exe() -> Result<(FetchNew, PathBuf)> {
+    let mut driver_path = std::env::current_exe()?;
+    driver_path.pop();
+    driver_path.push("msedgedriver.exe");
+
+    Ok((check_get_driver(&driver_path)?, driver_path))
+}
