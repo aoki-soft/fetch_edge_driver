@@ -1,19 +1,5 @@
-# ネットからedgedriverをダウンロードして動くようにする。
+# fetch edge driver
 
-[edgedriverのバージョン取得コマンド](https://qiita.com/p1nk5p1der/items/fe7d076b061bd8396af9)  
-
-```PowerShell
-(get-item ($env:SystemDrive + "\Program Files (x86)\Microsoft\Edge\Application\msedge.exe")).VersionInfo.FileVersion
-```
-
-
-https://msedgedriver.azureedge.net/102.0.1249.0/edgedriver_win32.zip
-
-https://msedgedriver.azureedge.net/102.0.1249.0/edgedriver_win64.zip
-https://msedgedriver.azureedge.net/102.0.1245.44/edgedriver_win64.zip
-
-msedgeバージョン読み込み
-
-```
-cargo run --example get_version
-```
+Library for downloading Microsoft Edge drivers.  
+This library works only on windows.  
+This library may no longer work due to changes in the Edge specifications.  
