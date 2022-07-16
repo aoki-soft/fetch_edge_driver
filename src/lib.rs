@@ -2,7 +2,7 @@ use std::{process::Command};
 use anyhow::{Result, Context};
 use bytes::Bytes;
 use std::io::prelude::*;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 use std::io::Cursor;
 
 /// # Get microsoft edge version
@@ -42,11 +42,11 @@ pub fn unzip_driver<P: AsRef<Path>>(data: impl Read + Seek, driver_path: P) -> R
     Ok(())
 }
 
-pub fn save_driver_with_exe() -> Result<()> {
+pub fn save_driver_with_exe() -> Result<PathBuf> {
     let mut driver_path = std::env::current_exe()?;
     driver_path.pop();
     driver_path.push("msedgedriver.exe");
 
     get_driver(&driver_path)?;
-    Ok(())
+    Ok(driver_path)
 }
